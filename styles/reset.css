@@ -1,0 +1,114 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+}
+
+*:where([hidden]) {
+    display: none;
+}
+
+*:where([contenteditable]:not([contenteditable="false"])) {
+    -moz-user-modify: read-write;
+    -webkit-user-modify: read-write;
+    overflow-wrap: break-word;
+    -webkit-line-break: after-white-space;
+    line-break: after-white-space;
+}
+
+*:where([draggable="true"]) {
+    -webkit-user-drag: element;
+}
+
+
+html,
+body {
+    font-size: 16px;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    overflow: hidden;
+}
+
+html:focus-within {
+    scroll-behavior: smooth;
+}
+
+body {
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+    image-rendering: 'smooth'
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+input,
+textarea {
+    -webkit-user-select: auto;
+    user-select: auto;
+}
+
+textarea {
+    white-space: revert;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+meter {
+    -webkit-appearance: revert;
+    appearance: revert;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+}
+
+ol,
+ul,
+menu {
+    list-style: none;
+}
+
+a,
+button {
+    cursor: revert;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:not([class]) {
+    text-decoration-skip-ink: auto;
+}

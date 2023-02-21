@@ -1,0 +1,51 @@
+{
+    "root": true,
+    "extends": [
+        "eslint:recommended",
+        "next/core-web-vitals",
+        "plugin:compat/recommended",
+        "plugin:unicorn/recommended",
+        "plugin:prettier/recommended"
+    ],
+    "env": {
+        "browser": true,
+        "es2022": true
+    },
+    "ignorePatterns": [
+        "!**/*",
+        "node_modules/",
+        "build/"
+    ],
+    "globals": {
+        "JSX": "readonly"
+    },
+    "rules": {
+        "semi": [
+            "error",
+            "never"
+        ],
+        "max-len": [
+            "error",
+            {
+                "code": 130
+            }
+        ],
+        "react/no-unknown-property": [
+            "error",
+            {
+                "ignore": [
+                    "sx"
+                ]
+            }
+        ],
+        "no-unused-vars": "off",
+        "@next/next/no-img-element": "off",
+        "unicorn/prevent-abbreviations": "off",
+        "unicorn/no-array-reduce": "off",
+        "unicorn/no-array-for-each": "off",
+        "unicorn/no-null": "off",
+        "unicorn/filename-case": "off",
+        "unicorn/no-typeof-undefined": "off",
+        "unicorn/no-useless-undefined": "off"
+    }
+}
