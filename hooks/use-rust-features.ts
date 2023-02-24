@@ -32,7 +32,12 @@ const getRustFeatures = async (version: string): Promise<RustFeatures> => {
         try {
             const features = JSON.parse(cached)
             if (Date.now() - features.received < acceptAge) {
-                return features
+                return {
+                    flags: features.flags ?? [],
+                    langFeatures: features.langFeatures ?? [],
+                    libFeatures: features.libFeatures ?? [],
+                    received: features.received ?? 0,
+                }
             }
         } catch {
             removeLocalStorage(`rust-release-${version}`)

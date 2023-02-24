@@ -9,7 +9,12 @@ const useRustFeaturesCached = (version: string): RustFeatures | null => {
         if (cached) {
             try {
                 const features = JSON.parse(cached)
-                return features
+                return {
+                    flags: features.flags ?? [],
+                    langFeatures: features.langFeatures ?? [],
+                    libFeatures: features.libFeatures ?? [],
+                    received: features.received ?? 0,
+                }
             } catch {
                 removeLocalStorage(`rust-release-${version}`)
             }

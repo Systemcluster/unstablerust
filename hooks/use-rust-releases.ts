@@ -1,5 +1,5 @@
 import useAsync from './use-async'
-import { getLocalStorage, setLocalStorage } from './use-stored-state'
+import { getLocalStorage, removeLocalStorage, setLocalStorage } from './use-stored-state'
 
 export type RustRelease = {
     value: string
@@ -10,8 +10,16 @@ export type RustRelease = {
 const getRustReleases = async (): Promise<RustRelease[]> => {
     const cached = getLocalStorage('rust-releases')
     const timestamp = getLocalStorage('rust-releases-timestamp')
-    if (cached && timestamp && Date.now() - Number.parseInt(timestamp) < 1000 * 60 * 30) {
-        return JSON.parse(cached)
+    try {
+        if (cached && timestamp && Date.now() - Number.parseInt(timestamp) < 1000 * 60 * 30) {
+            const releases = JSON.parse(cached)
+            if (releases?.length > 0) {
+                return releases
+            }
+        }
+    } catch {
+        removeLocalStorage('rust-releases')
+        removeLocalStorage('rust-releases-timestamp')
     }
     return fetch('https://api.github.com/repos/rust-lang/rust/releases')
         .then(async (res) => {
