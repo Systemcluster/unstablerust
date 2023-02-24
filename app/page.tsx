@@ -344,7 +344,7 @@ const FeatureList = ({
                         gap: 2,
                     }}
                 >
-                    {releases ? (
+                    {releases?.length > 0 ? (
                         releases.map((release, i) => (
                             <div
                                 key={release.value}
@@ -416,7 +416,7 @@ const FeatureList = ({
                             </div>
                         ))
                     ) : (
-                        <Loader sx={{ my: 3 }}></Loader>
+                        <Loader sx={{ my: 0 }}></Loader>
                     )}
                 </div>
             </div>
