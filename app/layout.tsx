@@ -6,6 +6,8 @@ import '../styles/fonts/monoid.css'
 
 import { Fragment, ReactNode } from 'react'
 
+import { AnalyticsWrapper } from '@/components/analytics'
+
 export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en">
@@ -35,7 +37,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
                 <meta name="darkreader" content="disable" />
             </head>
-            <Fragment>{children}</Fragment>
+            <Fragment>
+                {children}
+                <AnalyticsWrapper />
+            </Fragment>
         </html>
     )
 }
