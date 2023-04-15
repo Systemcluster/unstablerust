@@ -577,6 +577,14 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: s
             hljs.highlightElement(element as HTMLElement)
         })
     }, [content])
+    const source = content.replace(
+        /<a href="((?:\.\.\/|\/)*)?([\d./a-z-]+\.html)(#[a-z-]*)?">/g,
+        (match, p1, p2, p3) =>
+            `<a href="https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url.split('/', 2)[0]}/${
+                p1 || ''
+            }${p2}${p3 || ''}">`
+    )
+
     return (
         <div
             sx={{
@@ -764,7 +772,7 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: s
                     </span>
                 </a>
             </h1>
-            <main className="rust-external" dangerouslySetInnerHTML={{ __html: content }} ref={mainContentRef} />
+            <main className="rust-external" dangerouslySetInnerHTML={{ __html: source }} ref={mainContentRef} />
         </div>
     )
 }
