@@ -855,6 +855,18 @@ const FeatureGroup = ({
     )
 }
 
+const ThemeSwitcherIcon = ({ mode }: { mode: string }): JSX.Element => {
+    const [icon, setIcon] = useState<JSX.Element>(<IconMoonFill key="moon" size={24} sx={{ opacity: 0.25 }} />)
+    useEffect(() => {
+        if (mode === 'light') {
+            setIcon(<IconMoonFill key="moon" size={24} />)
+        } else {
+            setIcon(<IconSunFill key="sun" size={24} />)
+        }
+    }, [mode])
+    return <Fragment>{icon}</Fragment>
+}
+
 const spin = keyframes({
     from: { transform: 'rotate(0deg)' },
     to: { transform: 'rotate(360deg)' },
@@ -880,6 +892,7 @@ const Home = ({ setTheme }: { setTheme: (colorMode: string) => void }): JSX.Elem
                 fontSize: [0],
             }}
             data-theme={colorMode}
+            suppressHydrationWarning
         >
             <Content sx={{ height: '100%' }} id="content">
                 <Nav sx={{ gridColumn: '1 / 4' }}>
@@ -913,7 +926,7 @@ const Home = ({ setTheme }: { setTheme: (colorMode: string) => void }): JSX.Elem
                             },
                         }}
                     >
-                        {colorMode === 'light' ? <IconMoonFill size={24} /> : <IconSunFill size={24} />}
+                        <ThemeSwitcherIcon mode={colorMode} />
                     </NavLink>
                 </Nav>
                 {status === 'error' && (
