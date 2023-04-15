@@ -9,16 +9,16 @@ import hljs from 'highlight.js'
 import { darkTheme } from 'themes/dark'
 import { lightTheme } from 'themes/light'
 
-import IconLeft from 'remixicon/icons/System/arrow-left-circle-line.svg'
-import IconLoader from 'remixicon/icons/System/loader-4-line.svg'
-import IconError from 'remixicon/icons/System/error-warning-fill.svg'
-import IconExternal from 'remixicon/icons/System/external-link-fill.svg'
-import IconMoon from 'remixicon/icons/Weather/moon-fill.svg'
-import IconSun from 'remixicon/icons/Weather/sun-fill.svg'
-import IconInfo from 'remixicon/icons/Map/map-pin-3-line.svg'
-import IconGithub from 'remixicon/icons/Logos/github-line.svg'
-
-import { Icon } from '@/components/icon'
+import {
+    IconArrowLeftCircleLine,
+    IconLoader4Line,
+    IconErrorWarningLine,
+    IconExternalLinkFill,
+    IconMoonFill,
+    IconSunFill,
+    IconMapPin3Line,
+    IconGithubLine,
+} from 'remixicon'
 
 import useRustReleases, { RustRelease } from '@/hooks/use-rust-releases'
 import useRustFeatures, { RustFeature, RustFeatures } from '@/hooks/use-rust-features'
@@ -144,14 +144,14 @@ const ErrorMessage = ({ children, ...props }: ComponentProps<'div'>): JSX.Elemen
                 border: '1px solid',
                 borderColor: 'error.0',
                 background: 'error.0',
-                color: 'background.0',
+                color: 'white',
                 pr: 3,
                 pl: 3,
                 position: 'relative',
             }}
             {...props}
         >
-            <Icon src={IconError.src} width={24} height={24} inverted />
+            <IconErrorWarningLine size={24} />
             {children}
         </div>
     )
@@ -160,7 +160,7 @@ const ErrorMessage = ({ children, ...props }: ComponentProps<'div'>): JSX.Elemen
 const Loader = ({ children, ...props }: ComponentProps<'div'>): JSX.Element => {
     return (
         <div sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} {...props}>
-            <Icon src={IconLoader.src} width={32} height={32} alt="Loading" sx={{ animation: `${spin} 0.5s linear infinite` }} />
+            <IconLoader4Line size={32} sx={{ animation: `${spin} 0.5s linear infinite` }} />
             <div sx={{ opacity: 0.8 }}>{children}</div>
         </div>
     )
@@ -410,7 +410,7 @@ const FeatureList = ({
                                             }
                                         }}
                                     >
-                                        <Icon src={IconLeft.src} width={16} height={16} />
+                                        <IconArrowLeftCircleLine size={16} />
                                     </Button>
                                 </Tooltip>
                             </div>
@@ -759,7 +759,9 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: s
                     >
                         {feature?.version}
                     </span>
-                    <Icon src={IconExternal.src} width={14} height={14} sx={{ opacity: 0.3, mt: '-2px' }} />
+                    <span sx={{ opacity: 0.3, mt: '-2px', width: '14px', color: 'text.0' }}>
+                        <IconExternalLinkFill size={14} />
+                    </span>
                 </a>
             </h1>
             <main className="rust-external" dangerouslySetInnerHTML={{ __html: content }} ref={mainContentRef} />
@@ -835,12 +837,7 @@ const FeatureGroup = ({
                         </Button>
                         {highlight?.some((f) => f.name === feature.name) && (
                             <Tooltip content="New addition since last visit" parent={parent}>
-                                <Icon
-                                    src={IconInfo.src}
-                                    width={14}
-                                    height={14}
-                                    sx={{ ml: 2, opacity: 0.5, paddingBottom: '1px' }}
-                                />
+                                <IconMapPin3Line size={14} sx={{ ml: 2, opacity: 0.5, paddingBottom: '1px' }} />
                             </Tooltip>
                         )}
                     </li>
@@ -892,7 +889,7 @@ const Home = ({ setTheme }: { setTheme: (colorMode: string) => void }): JSX.Elem
                             },
                         }}
                     >
-                        <Icon src={IconGithub.src} width={16} height={16} alt="Systemcluster Github" />
+                        <IconGithubLine size={16} />
                     </NavLink>
                     <NavLink
                         href="#"
@@ -908,7 +905,7 @@ const Home = ({ setTheme }: { setTheme: (colorMode: string) => void }): JSX.Elem
                             },
                         }}
                     >
-                        <Icon src={colorMode === 'light' ? IconMoon.src : IconSun.src} width={24} height={24} alt="Color Theme" />
+                        {colorMode === 'light' ? <IconMoonFill size={24} /> : <IconSunFill size={24} />}
                     </NavLink>
                 </Nav>
                 {status === 'error' && (

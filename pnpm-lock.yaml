@@ -38,8 +38,8 @@ dependencies:
     specifier: ^18.2.0
     version: 18.2.0
   remixicon:
-    specifier: ^3.1.1
-    version: 3.1.1
+    specifier: github:Systemcluster/remixicon-react
+    version: github.com/Systemcluster/remixicon-react/e93037e5a0206a2384a31fc941657db0a7984b84
   typescript:
     specifier: ^5.0.4
     version: 5.0.4
@@ -2562,10 +2562,6 @@ packages:
       jsesc: 0.5.0
     dev: true
 
-  /remixicon@3.1.1:
-    resolution: {integrity: sha512-LOlsnVeZwLWB7iePs8pICJcEQ7iSVAOYsahqYTCIQsfZMnxB6Meu867EZxGLO2c3ZG9Xpp7fGU+2icLwyWHbcw==}
-    dev: false
-
   /require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
     engines: {node: '>=0.10.0'}
@@ -3099,3 +3095,13 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  github.com/Systemcluster/remixicon-react/e93037e5a0206a2384a31fc941657db0a7984b84:
+    resolution: {tarball: https://codeload.github.com/Systemcluster/remixicon-react/tar.gz/e93037e5a0206a2384a31fc941657db0a7984b84}
+    name: remixicon-react
+    version: 0.1.1
+    prepare: true
+    requiresBuild: true
+    dependencies:
+      react: 18.2.0
+    dev: false
