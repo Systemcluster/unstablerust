@@ -1,52 +1,78 @@
-import { ReactNode, RefObject, useEffect, useState } from 'react'
-import { FloatingPortal, useFloating, useHover, useInteractions } from '@floating-ui/react'
+import { ComponentProps, ReactNode, useEffect, useRef, useState } from 'react'
 
-const Tooltip = ({
-    content,
-    children,
-    parent,
-}: {
+import { ClientOnly } from '@/components/client-only'
+import useTheme from '@/hooks/use-theme'
+import {
+    arrow,
+    autoUpdate,
+    flip,
+    FloatingArrow,
+    FloatingPortal,
+    offset,
+    Placement,
+    shift,
+    useFloating,
+    useHover,
+    useInteractions,
+} from '@floating-ui/react'
+
+type TooltopProps = ComponentProps<'div'> & {
     content: string | ReactNode
-    children: ReactNode | ReactNode[]
-    parent: RefObject<Element>
-}) => {
+    placement?: Placement
+    children: ReactNode | ReactNode[] | string
+}
+const ClientTooltip = ({ content, placement, children, ...props }: TooltopProps) => {
     const [isOpen, setIsOpen] = useState(false)
+    const arrowRef = useRef(null)
     const { x, y, strategy, refs, context, update } = useFloating({
         open: isOpen,
-        onOpenChange: setIsOpen,
-        placement: 'right',
+        onOpenChange: (open) => {
+            requestAnimationFrame(() => {
+                setIsOpen(open)
+            })
+        },
+        placement: placement ?? 'right',
         strategy: 'fixed',
+        middleware: [
+            flip({}),
+            shift({
+                padding: 8,
+            }),
+            offset(8),
+            arrow({
+                element: arrowRef,
+            }),
+        ],
+        whileElementsMounted: autoUpdate,
     })
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            update()
+        })
+    }, [update, isOpen])
     const hover = useHover(context, { restMs: 500 })
     const { getReferenceProps, getFloatingProps } = useInteractions([hover])
-    useEffect(() => {
-        let num = 0
-        const resize = () => {
-            clearTimeout(num)
-            num = setTimeout(() => {
-                update()
-            }, 50) as unknown as number
-        }
-        window.addEventListener('resize', resize)
-        const currentParent = parent.current
-        currentParent?.addEventListener('scroll', resize)
-        return () => {
-            window.removeEventListener('resize', resize)
-            currentParent?.removeEventListener('scroll', resize)
-        }
-    }, [parent, update])
+    const { theme } = useTheme()
     return (
         <div
             ref={refs.setReference}
             sx={{
+                position: 'relative',
                 display: 'inline-flex',
                 alignItems: 'center',
             }}
+            {...props}
             {...getReferenceProps()}
         >
             {children}
-            <FloatingPortal root={parent.current as HTMLElement}>
+            <FloatingPortal>
                 <div
+                    onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                        ;(document.activeElement as HTMLElement).blur()
+                        setIsOpen(false)
+                    }}
                     ref={refs.setFloating}
                     sx={{
                         zIndex: 1000,
@@ -57,24 +83,50 @@ const Tooltip = ({
                         borderRadius: 1,
                         px: 2,
                         py: 1,
-                        pointerEvents: 'none',
+                        cursor: 'pointer',
                         transition: 'standard',
                         transitionProperty: 'opacity, top, left',
                         fontSize: '11px',
                         width: 'max-content',
+                        boxShadow: '0 0 2px 0 ' + theme.colors.background[4],
                     }}
                     style={{
                         position: strategy,
-                        top: y ?? 0,
-                        left: x ?? 0,
+                        top: y && !Number.isNaN(y) ? y : 0,
+                        left: x && !Number.isNaN(x) ? x : 0,
                         opacity: isOpen ? 0.95 : 0,
+                        pointerEvents: isOpen ? 'all' : 'none',
                     }}
                     {...getFloatingProps()}
                 >
                     {content}
+                    <ClientOnly>
+                        <FloatingArrow
+                            ref={arrowRef}
+                            context={context}
+                            fill={theme.colors.background[0]}
+                            strokeWidth={1}
+                            width={12}
+                            height={5}
+                            stroke={theme.colors.background[2]}
+                            sx={{
+                                opacity: 0.95,
+                            }}
+                        />
+                    </ClientOnly>
                 </div>
             </FloatingPortal>
         </div>
+    )
+}
+
+const Tooltip = ({ content, placement, children, ...props }: TooltopProps) => {
+    return (
+        <ClientOnly>
+            <ClientTooltip content={content} placement={placement} {...props}>
+                {children}
+            </ClientTooltip>
+        </ClientOnly>
     )
 }
 

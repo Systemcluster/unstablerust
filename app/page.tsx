@@ -1,6 +1,6 @@
 'use client'
 
-import { ComponentProps, Fragment, RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { ComponentProps, Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { keyframes } from '@emotion/react'
 import { Theme, ThemeProvider } from '@theme-ui/core'
@@ -37,7 +37,7 @@ const Nav = ({ children, ...props }: ComponentProps<'nav'>): JSX.Element => {
                 right: 0,
                 height: '60px',
                 width: '100%',
-                zIndex: 800,
+                zIndex: 2000,
                 backdropFilter: 'blur(10px)',
                 background: 'background.0',
                 borderBottom: '1px solid',
@@ -383,7 +383,7 @@ const FeatureList = ({
                                         </span>
                                     )}
                                 </div>
-                                <Tooltip content="Select for feature comparison" parent={versionListRef}>
+                                <Tooltip content="Select for feature comparison">
                                     <Button
                                         sx={{
                                             opacity: release.value === baseRelease ? 1 : 0.2,
@@ -401,13 +401,19 @@ const FeatureList = ({
                                             },
                                         }}
                                         disabled={releases.findIndex((r) => r.value === newRelease) >= i}
-                                        onClick={(e) => {
+                                        onPointerDown={(e) => {
+                                            e.stopPropagation()
+                                            e.preventDefault()
                                             e.currentTarget?.blur()
                                             if (baseRelease === release.value) {
                                                 setBaseRelease('')
                                             } else {
                                                 setBaseRelease(release.value)
                                             }
+                                        }}
+                                        onPointerUp={(e) => {
+                                            e.stopPropagation()
+                                            e.preventDefault()
                                         }}
                                     >
                                         <IconArrowLeftCircleLine size={16} />
@@ -453,7 +459,6 @@ const FeatureList = ({
                     >
                         {(!restFeatures || baseFeatures.status === 'pending') && <Loader sx={{ mt: 3 }}></Loader>}
                         <FeatureGroup
-                            parent={featureListRef}
                             title="New Compiler Flags"
                             features={diffFeatures?.addedFlags ?? []}
                             diff="added"
@@ -462,7 +467,6 @@ const FeatureList = ({
                             highlight={newUpdatedFeatures?.addedFlags ?? []}
                         />
                         <FeatureGroup
-                            parent={featureListRef}
                             title="New Language Features"
                             features={diffFeatures?.addedLangFeatures ?? []}
                             diff="added"
@@ -471,7 +475,6 @@ const FeatureList = ({
                             highlight={newUpdatedFeatures?.addedLangFeatures ?? []}
                         />
                         <FeatureGroup
-                            parent={featureListRef}
                             title="New Library Features"
                             features={diffFeatures?.addedLibFeatures ?? []}
                             diff="added"
@@ -480,7 +483,6 @@ const FeatureList = ({
                             highlight={newUpdatedFeatures?.addedLibFeatures ?? []}
                         />
                         <FeatureGroup
-                            parent={featureListRef}
                             title="Removed Compiler Flags"
                             features={diffFeatures?.removedFlags ?? []}
                             diff="removed"
@@ -489,7 +491,6 @@ const FeatureList = ({
                             highlight={newUpdatedFeatures?.removedFlags ?? []}
                         />
                         <FeatureGroup
-                            parent={featureListRef}
                             title="Removed Language Features"
                             features={diffFeatures?.removedLangFeatures ?? []}
                             diff="removed"
@@ -498,7 +499,6 @@ const FeatureList = ({
                             highlight={newUpdatedFeatures?.removedLangFeatures ?? []}
                         />
                         <FeatureGroup
-                            parent={featureListRef}
                             title="Removed Library Features"
                             features={diffFeatures?.removedLibFeatures ?? []}
                             diff="removed"
@@ -507,21 +507,18 @@ const FeatureList = ({
                             highlight={newUpdatedFeatures?.removedLibFeatures ?? []}
                         />
                         <FeatureGroup
-                            parent={featureListRef}
                             title="All Compiler Flags"
                             features={newFeatures.value?.flags ?? []}
                             selectFeature={setSelectedFeature}
                             selected={selectedFeature}
                         />
                         <FeatureGroup
-                            parent={featureListRef}
                             title="All Language Features"
                             features={newFeatures.value?.langFeatures ?? []}
                             selectFeature={setSelectedFeature}
                             selected={selectedFeature}
                         />
                         <FeatureGroup
-                            parent={featureListRef}
                             title="All Library Features"
                             features={newFeatures.value?.libFeatures ?? []}
                             selectFeature={setSelectedFeature}
@@ -577,7 +574,7 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: s
             hljs.highlightElement(element as HTMLElement)
         })
     }, [content])
-    const source = content.replace(
+    const source = content.replaceAll(
         /<a href="((?:\.\.\/|\/)*)?([\d./a-z-]+\.html)(#[a-z-]*)?">/g,
         (match, p1, p2, p3) =>
             `<a href="https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url.split('/', 2)[0]}/${
@@ -784,7 +781,6 @@ const FeatureGroup = ({
     selected,
     selectFeature,
     highlight,
-    parent,
 }: {
     title: string
     features: RustFeature[]
@@ -792,7 +788,6 @@ const FeatureGroup = ({
     selected?: RustFeature
     selectFeature: (feature: RustFeature) => void
     highlight?: RustFeature[]
-    parent: RefObject<Element>
 }): JSX.Element => {
     return features.length === 0 ? (
         <Fragment />
@@ -844,7 +839,7 @@ const FeatureGroup = ({
                             <span>{feature.name}</span>
                         </Button>
                         {highlight?.some((f) => f.name === feature.name) && (
-                            <Tooltip content="New addition since last visit" parent={parent}>
+                            <Tooltip content="New addition since last visit">
                                 <IconMapPin3Line size={14} sx={{ ml: 2, opacity: 0.5, paddingBottom: '1px' }} />
                             </Tooltip>
                         )}
