@@ -383,7 +383,7 @@ const FeatureList = ({
                                         </span>
                                     )}
                                 </div>
-                                <Tooltip content="Select for feature comparison">
+                                <Tooltip content="Select for feature comparison" mouseOnly>
                                     <Button
                                         sx={{
                                             opacity: release.value === baseRelease ? 1 : 0.2,

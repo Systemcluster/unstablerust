@@ -19,9 +19,10 @@ import {
 type TooltopProps = ComponentProps<'div'> & {
     content: string | ReactNode
     placement?: Placement
+    mouseOnly?: boolean
     children: ReactNode | ReactNode[] | string
 }
-const ClientTooltip = ({ content, placement, children, ...props }: TooltopProps) => {
+const ClientTooltip = ({ content, placement, mouseOnly, children, ...props }: TooltopProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const arrowRef = useRef(null)
     const { x, y, strategy, refs, context, update } = useFloating({
@@ -50,7 +51,7 @@ const ClientTooltip = ({ content, placement, children, ...props }: TooltopProps)
             update()
         })
     }, [update, isOpen])
-    const hover = useHover(context, { restMs: 500 })
+    const hover = useHover(context, { restMs: 500, mouseOnly })
     const { getReferenceProps, getFloatingProps } = useInteractions([hover])
     const { theme } = useTheme()
     return (
