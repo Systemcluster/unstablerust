@@ -8,7 +8,7 @@ export const darkTheme = makeTheme({
         heading: 'Monoid, var(--font-system)',
         monospace: 'Monoid, var(--font-mono)',
     },
-    breakpoints: [40, 52, 64].map((n) => n + 'em'),
+    breakpoints: [40, 64, 82].map((n) => n + 'em'),
     space: [0, 4, 8, 16, 24, 32, 64, 128, 256, 512, 1024, 1280, 1920],
     sizes: [0, 4, 8, 16, 24, 32, 64, 128, 256, 512, 1024, 1280, 1920],
     fontSizes: [12, 14, 16, 20, 24, 32, 48, 64, 86],
