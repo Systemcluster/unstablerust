@@ -18,7 +18,7 @@ import {
     IconSunFill,
     IconMapPin3Line,
     IconGithubLine,
-} from 'remixicon'
+} from 'remixicon-react'
 
 import useRustReleases, { RustRelease } from '@/hooks/use-rust-releases'
 import useRustFeatures, { RustFeature, RustFeatures } from '@/hooks/use-rust-features'

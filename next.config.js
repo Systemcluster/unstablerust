@@ -24,8 +24,6 @@ const config = {
     poweredByHeader: false,
     staticPageGenerationTimeout: 60,
     experimental: {
-        runtime: 'experimental-edge',
-        fallbackNodePolyfills: false,
         legacyBrowsers: false,
         nextScriptWorkers: false,
         appDir: true,
