@@ -20,7 +20,7 @@ export async function GET(request: NextRequest, { params }: { params: any }): Pr
             }
         )
     } catch (error: any) {
-        console.log(error)
+        console.error(error)
         return NextResponse.json(
             { message: `${error.message ?? error}` },
             {

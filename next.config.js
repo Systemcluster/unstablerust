@@ -24,9 +24,7 @@ const config = {
     poweredByHeader: false,
     staticPageGenerationTimeout: 60,
     experimental: {
-        legacyBrowsers: false,
         nextScriptWorkers: false,
-        appDir: true,
     },
     devIndicators: {
         buildActivity: true,

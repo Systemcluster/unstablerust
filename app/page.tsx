@@ -3,22 +3,22 @@
 import { ComponentProps, Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { keyframes } from '@emotion/react'
-import { Theme, ThemeProvider } from '@theme-ui/core'
+import { Theme } from '@theme-ui/core'
 import hljs from 'highlight.js'
 
 import { darkTheme } from 'themes/dark'
 import { lightTheme } from 'themes/light'
 
 import {
-    IconArrowLeftCircleLine,
-    IconLoader4Line,
-    IconErrorWarningLine,
-    IconExternalLinkFill,
-    IconMoonFill,
-    IconSunFill,
-    IconMapPin3Line,
-    IconGithubLine,
-} from 'remixicon-react'
+    RiArrowLeftCircleLine,
+    RiLoader4Line,
+    RiErrorWarningLine,
+    RiExternalLinkFill,
+    RiMoonFill,
+    RiSunFill,
+    RiMapPin3Line,
+    RiGithubLine,
+} from '@remixicon/react'
 
 import useRustReleases, { RustRelease } from '@/hooks/use-rust-releases'
 import useRustFeatures, { RustFeature, RustFeatures } from '@/hooks/use-rust-features'
@@ -26,6 +26,7 @@ import useStoredState from '@/hooks/use-stored-state'
 import useRustFeature from '@/hooks/use-rust-feature'
 import useRustFeaturesCached from '@/hooks/use-rust-features-cached'
 import Tooltip from '@/components/tooltip'
+import { ThemeWrapper } from '@/components/theme'
 
 const Nav = ({ children, ...props }: ComponentProps<'nav'>): JSX.Element => {
     return (
@@ -37,6 +38,7 @@ const Nav = ({ children, ...props }: ComponentProps<'nav'>): JSX.Element => {
                 right: 0,
                 height: '60px',
                 width: '100%',
+                minWidth: '100%',
                 zIndex: 2000,
                 backdropFilter: 'blur(10px)',
                 background: 'background.0',
@@ -151,7 +153,7 @@ const ErrorMessage = ({ children, ...props }: ComponentProps<'div'>): JSX.Elemen
             }}
             {...props}
         >
-            <IconErrorWarningLine size={24} />
+            <RiErrorWarningLine size={24} />
             {children}
         </div>
     )
@@ -160,7 +162,7 @@ const ErrorMessage = ({ children, ...props }: ComponentProps<'div'>): JSX.Elemen
 const Loader = ({ children, ...props }: ComponentProps<'div'>): JSX.Element => {
     return (
         <div sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} {...props}>
-            <IconLoader4Line size={32} sx={{ animation: `${spin} 0.5s linear infinite` }} />
+            <RiLoader4Line size={32} sx={{ animation: `${spin} 0.5s linear infinite` }} />
             <div sx={{ opacity: 0.8 }}>{children}</div>
         </div>
     )
@@ -208,6 +210,8 @@ const FeatureList = ({
 
     const [selectedFeature, setSelectedFeature] = useStoredState<RustFeature | undefined>('rust-selected-feature', undefined)
     const featureDetails = useRustFeature(selectedFeature)
+
+    const baseReleaseIndex = releases.findIndex((r) => r.value === baseRelease)
 
     useEffect(() => {
         if (!baseRelease && lastStableRelease?.value) {
@@ -330,6 +334,7 @@ const FeatureList = ({
                     overflow: 'auto',
                     px: 0,
                     pr: 3,
+                    pl: 0,
                     py: 3,
                     pb: 5,
                     position: 'relative',
@@ -349,12 +354,27 @@ const FeatureList = ({
                             <div
                                 key={release.value}
                                 sx={{
+                                    position: 'relative',
                                     display: 'flex',
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     gap: 2,
+                                    "&[data-compared='true']": {
+                                        '&::after': {
+                                            content: '""',
+                                            right: '24px',
+                                            top: '-2px',
+                                            bottom: '-2px',
+                                            width: '2px',
+                                            position: 'absolute',
+                                            backgroundColor: 'text.1',
+                                            opacity: 0.1,
+                                            pointerEvents: 'none',
+                                        },
+                                    },
                                 }}
+                                data-compared={baseReleaseIndex >= i}
                             >
                                 <div>
                                     <Button
@@ -383,7 +403,11 @@ const FeatureList = ({
                                         </span>
                                     )}
                                 </div>
-                                <Tooltip content="Select for feature comparison" mouseOnly>
+                                <Tooltip
+                                    content="Select for feature comparison"
+                                    mouseOnly
+                                    disabled={release.value === newRelease}
+                                >
                                     <Button
                                         sx={{
                                             opacity: release.value === baseRelease ? 1 : 0.2,
@@ -416,7 +440,7 @@ const FeatureList = ({
                                             e.preventDefault()
                                         }}
                                     >
-                                        <IconArrowLeftCircleLine size={16} />
+                                        <RiArrowLeftCircleLine size={16} />
                                     </Button>
                                 </Tooltip>
                             </div>
@@ -765,7 +789,7 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: s
                         {feature?.version}
                     </span>
                     <span sx={{ opacity: 0.3, mt: '-2px', width: '14px', color: 'text.0' }}>
-                        <IconExternalLinkFill size={14} />
+                        <RiExternalLinkFill size={14} />
                     </span>
                 </a>
             </h1>
@@ -840,7 +864,7 @@ const FeatureGroup = ({
                         </Button>
                         {highlight?.some((f) => f.name === feature.name) && (
                             <Tooltip content="New addition since last visit">
-                                <IconMapPin3Line size={14} sx={{ ml: 2, opacity: 0.5, paddingBottom: '1px' }} />
+                                <RiMapPin3Line size={14} sx={{ ml: 2, opacity: 0.5, paddingBottom: '1px' }} />
                             </Tooltip>
                         )}
                     </li>
@@ -851,12 +875,12 @@ const FeatureGroup = ({
 }
 
 const ThemeSwitcherIcon = ({ mode }: { mode: string }): JSX.Element => {
-    const [icon, setIcon] = useState<JSX.Element>(<IconMoonFill key="moon" size={24} sx={{ opacity: 0.25 }} />)
+    const [icon, setIcon] = useState<JSX.Element>(<RiMoonFill key="moon" size={24} sx={{ opacity: 0.25 }} />)
     useEffect(() => {
         if (mode === 'light') {
-            setIcon(<IconMoonFill key="moon" size={24} />)
+            setIcon(<RiMoonFill key="moon" size={24} />)
         } else {
-            setIcon(<IconSunFill key="sun" size={24} />)
+            setIcon(<RiSunFill key="sun" size={24} />)
         }
     }, [mode])
     return <Fragment>{icon}</Fragment>
@@ -905,7 +929,7 @@ const Home = ({ setTheme }: { setTheme: (colorMode: string) => void }): JSX.Elem
                             },
                         }}
                     >
-                        <IconGithubLine size={16} />
+                        <RiGithubLine size={16} />
                     </NavLink>
                     <NavLink
                         href="#"
@@ -930,7 +954,10 @@ const Home = ({ setTheme }: { setTheme: (colorMode: string) => void }): JSX.Elem
                     </ErrorMessage>
                 )}
                 {status !== 'error' && (
-                    <FeatureList releases={value ?? []} sx={{ width: '100%', maxWidth: 12, px: 3, height: '100%' }} />
+                    <FeatureList
+                        releases={value ?? []}
+                        sx={{ width: '100%', minWidth: '100%', maxWidth: 12, px: 3, height: '100%' }}
+                    />
                 )}
             </Content>
         </body>
@@ -945,7 +972,7 @@ const Body = (): JSX.Element => {
         })
     }, [])
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeWrapper theme={theme}>
             <Home
                 setTheme={(colorMode) => {
                     if (colorMode === 'dark') {
@@ -955,7 +982,7 @@ const Body = (): JSX.Element => {
                     }
                 }}
             />
-        </ThemeProvider>
+        </ThemeWrapper>
     )
 }
 

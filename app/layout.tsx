@@ -5,12 +5,11 @@ import '../styles/global.css'
 import '../styles/fonts/monoid.css'
 
 import { Fragment, ReactNode } from 'react'
+import type { Metadata, Viewport } from 'next'
 
 import { AnalyticsWrapper } from '@/components/analytics'
 
-export const runtime = 'edge'
-
-export const metadata = {
+export const metadata: Metadata = {
     title: {
         default: 'Unstable Rust Feature Explorer',
         template: '%s | Unstable Rust Feature Explorer',
@@ -22,7 +21,6 @@ export const metadata = {
             name: 'Systemcluster',
         },
     ],
-    viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover',
     icons: [
         {
             rel: 'icon',
@@ -33,6 +31,14 @@ export const metadata = {
             rel: 'apple-touch-icon',
             url: '/favicon.svg',
             type: 'image/svg+xml',
+            sizes: 'any',
+        },
+        {
+            rel: 'mask-icon',
+            url: '/favicon.svg',
+            type: 'image/svg+xml',
+            color: '#030303',
+            sizes: 'any',
         },
     ],
     robots: {
@@ -41,11 +47,20 @@ export const metadata = {
         nocache: false,
         noarchive: true,
     },
-    themeColor: '#030303',
     other: {
         darkreader: 'disable',
         'X-UA-Compatible': 'IE=edge',
     },
+}
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+    themeColor: '#030303',
+    colorScheme: 'dark light',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

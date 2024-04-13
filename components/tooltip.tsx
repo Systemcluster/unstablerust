@@ -20,9 +20,10 @@ type TooltopProps = ComponentProps<'div'> & {
     content: string | ReactNode
     placement?: Placement
     mouseOnly?: boolean
+    disabled?: boolean
     children: ReactNode | ReactNode[] | string
 }
-const ClientTooltip = ({ content, placement, mouseOnly, children, ...props }: TooltopProps) => {
+const ClientTooltip = ({ content, placement, mouseOnly, disabled, children, ...props }: TooltopProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const arrowRef = useRef(null)
     const { x, y, strategy, refs, context, update } = useFloating({
@@ -66,57 +67,59 @@ const ClientTooltip = ({ content, placement, mouseOnly, children, ...props }: To
             {...getReferenceProps()}
         >
             {children}
-            <FloatingPortal>
-                <div
-                    onPointerDown={(e) => {
-                        e.stopPropagation()
-                        e.preventDefault()
-                        ;(document.activeElement as HTMLElement).blur()
-                        setIsOpen(false)
-                    }}
-                    ref={refs.setFloating}
-                    sx={{
-                        zIndex: 1000,
-                        background: 'background.0',
-                        border: '1px solid',
-                        borderColor: 'background.2',
-                        color: 'text.0',
-                        borderRadius: 1,
-                        px: 2,
-                        py: 1,
-                        cursor: 'pointer',
-                        transition: 'standard',
-                        transitionProperty: 'opacity, top, left',
-                        fontSize: '11px',
-                        width: 'max-content',
-                        boxShadow: '0 0 2px 0 ' + theme.colors.background[4],
-                    }}
-                    style={{
-                        position: strategy,
-                        top: y && !Number.isNaN(y) ? y : 0,
-                        left: x && !Number.isNaN(x) ? x : 0,
-                        opacity: isOpen ? 0.95 : 0,
-                        pointerEvents: isOpen ? 'all' : 'none',
-                    }}
-                    {...getFloatingProps()}
-                >
-                    {content}
-                    <ClientOnly>
-                        <FloatingArrow
-                            ref={arrowRef}
-                            context={context}
-                            fill={theme.colors.background[0]}
-                            strokeWidth={1}
-                            width={12}
-                            height={5}
-                            stroke={theme.colors.background[2]}
-                            sx={{
-                                opacity: 0.95,
-                            }}
-                        />
-                    </ClientOnly>
-                </div>
-            </FloatingPortal>
+            {disabled ? null : (
+                <FloatingPortal>
+                    <div
+                        onPointerDown={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            ;(document.activeElement as HTMLElement).blur()
+                            setIsOpen(false)
+                        }}
+                        ref={refs.setFloating}
+                        sx={{
+                            zIndex: 1000,
+                            background: 'background.0',
+                            border: '1px solid',
+                            borderColor: 'background.2',
+                            color: 'text.0',
+                            borderRadius: 1,
+                            px: 2,
+                            py: 1,
+                            cursor: 'pointer',
+                            transition: 'standard',
+                            transitionProperty: 'opacity, top, left',
+                            fontSize: '11px',
+                            width: 'max-content',
+                            boxShadow: '0 0 2px 0 ' + theme.colors.background[4],
+                        }}
+                        style={{
+                            position: strategy,
+                            top: y && !Number.isNaN(y) ? y : 0,
+                            left: x && !Number.isNaN(x) ? x : 0,
+                            opacity: isOpen ? 0.95 : 0,
+                            pointerEvents: isOpen ? 'all' : 'none',
+                        }}
+                        {...getFloatingProps()}
+                    >
+                        {content}
+                        <ClientOnly>
+                            <FloatingArrow
+                                ref={arrowRef}
+                                context={context}
+                                fill={theme.colors.background[0]}
+                                strokeWidth={1}
+                                width={12}
+                                height={5}
+                                stroke={theme.colors.background[2]}
+                                sx={{
+                                    opacity: 0.95,
+                                }}
+                            />
+                        </ClientOnly>
+                    </div>
+                </FloatingPortal>
+            )}
         </div>
     )
 }
