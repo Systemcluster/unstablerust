@@ -643,6 +643,10 @@ const FeatureList = ({
     )
 }
 
+const escapeRegex = (s?: string) => {
+    return s?.replaceAll(/[$()*+./?[\\\]^{|}-]/g, '\\$&') ?? ''
+}
+
 const FeatureDetails = ({
     feature,
     content,
@@ -670,13 +674,13 @@ const FeatureDetails = ({
     const source = content
         .replaceAll(/<a href="((?:\.\.\/|\/)*)?([\d./a-z-]+\.html)(#[a-z-]*)?">/g, (match, p1, p2, p3) =>
             'content' in feature
-                ? `<a href="https://doc.rust-lang.org/${feature?.version}/cargo/reference/${p1 || ''}${p2}${p3 || ''}">`
-                : `<a href="https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url.split('/', 2)[0]}/${
-                      p1 || ''
-                  }${p2}${p3 || ''}">`
+                ? // eslint-disable-next-line max-len
+                  `<a href="https://doc.rust-lang.org/${feature?.version ?? ''}/cargo/reference/${p1 || ''}${p2 || ''}${p3 || ''}">`
+                : // eslint-disable-next-line max-len
+                  `<a href="https://doc.rust-lang.org/${feature?.version ?? ''}/unstable-book/${feature?.url.split('/', 2)[0] ?? ''}/${p1 || ''}${p2 || ''}${p3 || ''}">`
         )
         .replaceAll(/ https:\/\/github.com\/rust-lang\/([a-z-]+)\/issues\/(\d+)</g, (match, p1, p2) => {
-            return ` <a href="https://github.com/rust-lang/${p1}/issues/${p2}"><code>#${p2}</code></a><`
+            return ` <a href="https://github.com/rust-lang/${p1 || ''}/issues/${p2 || ''}"><code>#${p2 || ''}</code></a><`
         })
 
     return (
@@ -690,7 +694,8 @@ const FeatureDetails = ({
                           : null
                 if (target instanceof HTMLAnchorElement && target.href.startsWith('http') && !e.metaKey && !e.ctrlKey) {
                     const rustMatch = new RegExp(
-                        `http[s]?://doc.rust-lang.org/${feature?.version}/unstable-book/([a-z_-]+)/([a-z_-]+).html`
+                        `http[s]?://doc.rust-lang.org/${escapeRegex(feature?.version)}/unstable-book/([a-z_-]+)/([a-z_-]+).html`,
+                        'g'
                     ).exec(target.href)
                     if (
                         rustMatch &&
@@ -716,7 +721,7 @@ const FeatureDetails = ({
                     }
                 }
                 if (target instanceof HTMLAnchorElement && target.getAttribute('href')?.startsWith('#')) {
-                    const refMatch = new RegExp(`^#([A-Za-z_-]+)$`).exec(target.getAttribute('href')!)
+                    const refMatch = new RegExp(`^#([A-Za-z_-]+)$`, 'g').exec(target.getAttribute('href')!)
                     if (refMatch) {
                         let match = refMatch[1].toLowerCase()
                         if (
