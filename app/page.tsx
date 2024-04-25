@@ -215,6 +215,7 @@ const FeatureList = ({
     const featureDetails = useRustFeature(selectedFeature)
 
     const baseReleaseIndex = releases.findIndex((r) => r.value === baseRelease)
+    const newReleaseIndex = releases.findIndex((r) => r.value === newRelease)
 
     useEffect(() => {
         if (!baseRelease && lastStableRelease?.value) {
@@ -396,7 +397,7 @@ const FeatureList = ({
                                         },
                                     },
                                 }}
-                                data-compared={baseReleaseIndex >= i}
+                                data-compared={baseReleaseIndex >= i && newReleaseIndex <= i}
                             >
                                 <div>
                                     <Button
@@ -425,11 +426,7 @@ const FeatureList = ({
                                         </span>
                                     )}
                                 </div>
-                                <Tooltip
-                                    content="Select for feature comparison"
-                                    mouseOnly
-                                    disabled={release.value === newRelease}
-                                >
+                                <Tooltip content="Select for feature comparison" mouseOnly disabled={i <= newReleaseIndex}>
                                     <Button
                                         sx={{
                                             opacity: release.value === baseRelease ? 1 : 0.2,
@@ -446,11 +443,14 @@ const FeatureList = ({
                                                 cursor: 'not-allowed',
                                             },
                                         }}
-                                        disabled={releases.findIndex((r) => r.value === newRelease) >= i}
+                                        disabled={i <= newReleaseIndex}
                                         onPointerDown={(e) => {
                                             e.stopPropagation()
                                             e.preventDefault()
                                             e.currentTarget?.blur()
+                                            if (i <= newReleaseIndex) {
+                                                return
+                                            }
                                             if (baseRelease === release.value) {
                                                 setBaseRelease('')
                                             } else {
