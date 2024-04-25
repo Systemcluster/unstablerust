@@ -667,13 +667,17 @@ const FeatureDetails = ({
             mainContentRef.current.scrollTop = 0
         }, 10)
     }, [content])
-    const source = content.replaceAll(/<a href="((?:\.\.\/|\/)*)?([\d./a-z-]+\.html)(#[a-z-]*)?">/g, (match, p1, p2, p3) =>
-        'content' in feature
-            ? `<a href="https://doc.rust-lang.org/${feature?.version}/cargo/reference/${p1 || ''}${p2}${p3 || ''}">`
-            : `<a href="https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url.split('/', 2)[0]}/${
-                  p1 || ''
-              }${p2}${p3 || ''}">`
-    )
+    const source = content
+        .replaceAll(/<a href="((?:\.\.\/|\/)*)?([\d./a-z-]+\.html)(#[a-z-]*)?">/g, (match, p1, p2, p3) =>
+            'content' in feature
+                ? `<a href="https://doc.rust-lang.org/${feature?.version}/cargo/reference/${p1 || ''}${p2}${p3 || ''}">`
+                : `<a href="https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url.split('/', 2)[0]}/${
+                      p1 || ''
+                  }${p2}${p3 || ''}">`
+        )
+        .replaceAll(/ https:\/\/github.com\/rust-lang\/([a-z-]+)\/issues\/(\d+)</g, (match, p1, p2) => {
+            return ` <a href="https://github.com/rust-lang/${p1}/issues/${p2}"><code>#${p2}</code></a><`
+        })
 
     return (
         <div
