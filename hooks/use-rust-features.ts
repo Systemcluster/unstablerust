@@ -69,7 +69,7 @@ const getRustFeatures = async (version: string): Promise<RustFeatures> => {
         let acceptAge = version === 'nightly' || version === 'beta' ? 1000 * 60 * 15 : 1000 * 60 * 60 * 24 * 7
         try {
             const features = JSON.parse(cached)
-            if (Date.now() - features.received < acceptAge) {
+            if (Date.now() - features.received < acceptAge && features.cargoFeatures) {
                 return {
                     flags: features.flags ?? [],
                     langFeatures: features.langFeatures ?? [],
