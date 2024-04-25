@@ -623,7 +623,18 @@ const FeatureList = ({
                             <div sx={{ mt: 3, opacity: 0.75 }}>Select a release and a feature on the left.</div>
                         )}
                         {featureDetails.value && selectedFeature && (
-                            <FeatureDetails feature={selectedFeature} content={featureDetails.value.content} />
+                            <FeatureDetails
+                                feature={selectedFeature}
+                                content={featureDetails.value.content}
+                                selectFeature={(feature, ty) => {
+                                    const found = newFeatures.value?.[ty]?.find((f) => f.name === feature)
+                                    if (found) {
+                                        setSelectedFeature(found)
+                                        return true
+                                    }
+                                    return false
+                                }}
+                            />
                         )}
                     </Fragment>
                 )}
@@ -632,7 +643,15 @@ const FeatureList = ({
     )
 }
 
-const FeatureDetails = ({ feature, content }: { feature: RustFeature | CargoFeature; content: string }) => {
+const FeatureDetails = ({
+    feature,
+    content,
+    selectFeature,
+}: {
+    feature: RustFeature | CargoFeature
+    content: string
+    selectFeature: (feature: string, ty: 'flags' | 'langFeatures' | 'libFeatures' | 'cargoFeatures') => boolean
+}) => {
     const mainContentRef = useRef<HTMLElement>(null)
     useEffect(() => {
         if (!mainContentRef.current) {
@@ -641,6 +660,12 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature | CargoFeat
         mainContentRef.current.querySelectorAll('pre code').forEach((element) => {
             hljs.highlightElement(element as HTMLElement)
         })
+        setTimeout(() => {
+            if (!mainContentRef.current) {
+                return
+            }
+            mainContentRef.current.scrollTop = 0
+        }, 10)
     }, [content])
     const source = content.replaceAll(/<a href="((?:\.\.\/|\/)*)?([\d./a-z-]+\.html)(#[a-z-]*)?">/g, (match, p1, p2, p3) =>
         'content' in feature
@@ -652,6 +677,56 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature | CargoFeat
 
     return (
         <div
+            onClick={(e) => {
+                let target =
+                    e.target instanceof HTMLAnchorElement
+                        ? e.target
+                        : e.target instanceof HTMLElement
+                          ? e.target.parentElement
+                          : null
+                if (target instanceof HTMLAnchorElement && target.href.startsWith('http') && !e.metaKey && !e.ctrlKey) {
+                    const rustMatch = new RegExp(
+                        `http[s]?://doc.rust-lang.org/${feature?.version}/unstable-book/([a-z_-]+)/([a-z_-]+).html`
+                    ).exec(target.href)
+                    if (
+                        rustMatch &&
+                        rustMatch[1] &&
+                        rustMatch[2] &&
+                        (rustMatch[1] == 'compiler-flags' || rustMatch[1] == 'lang-features' || rustMatch[1] == 'lib-features')
+                    ) {
+                        let casedCategory =
+                            rustMatch[1] == 'compiler-flags'
+                                ? 'flags'
+                                : rustMatch[1] == 'lang-features'
+                                  ? 'langFeatures'
+                                  : rustMatch[1] == 'lib-features'
+                                    ? 'libFeatures'
+                                    : undefined
+                        if (
+                            casedCategory &&
+                            selectFeature(rustMatch[2], casedCategory as 'flags' | 'langFeatures' | 'libFeatures')
+                        ) {
+                            e.preventDefault()
+                            e.stopPropagation()
+                        }
+                    }
+                }
+                if (target instanceof HTMLAnchorElement && target.getAttribute('href')?.startsWith('#')) {
+                    const refMatch = new RegExp(`^#([A-Za-z_-]+)$`).exec(target.getAttribute('href')!)
+                    if (refMatch) {
+                        let match = refMatch[1].toLowerCase()
+                        if (
+                            selectFeature(match, 'flags') ||
+                            selectFeature(match, 'langFeatures') ||
+                            selectFeature(match, 'libFeatures') ||
+                            selectFeature(match, 'cargoFeatures')
+                        ) {
+                            e.preventDefault()
+                            e.stopPropagation()
+                        }
+                    }
+                }
+            }}
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -773,7 +848,7 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature | CargoFeat
                             color: 'secondary.3',
                         },
                         '.hljs-literal, .hljs-built_in,.hljs-bullet,.hljs-code,.hljs-addition': {
-                            color: 'primary.1',
+                            color: 'secondary.1',
                         },
                         '.hljs-meta .hljs-string': {
                             color: 'primary.2',
