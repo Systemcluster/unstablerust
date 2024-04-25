@@ -661,13 +661,17 @@ const FeatureDetails = ({
         if (!mainContentRef.current) {
             return
         }
-        mainContentRef.current.querySelectorAll('pre code').forEach((element) => {
-            hljs.highlightElement(element as HTMLElement)
-        })
         setTimeout(() => {
             if (!mainContentRef.current) {
                 return
             }
+            mainContentRef.current.querySelectorAll('pre code').forEach((element) => {
+                try {
+                    hljs.highlightElement(element as HTMLElement)
+                } catch (error) {
+                    console.error(error)
+                }
+            })
             mainContentRef.current.scrollTop = 0
         }, 10)
     }, [content])
