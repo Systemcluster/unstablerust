@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import useAsync from './use-async'
-import { RustFeature } from './use-rust-features'
+import { type RustFeature, type CargoFeature } from './use-rust-features'
 import { getLocalStorage, removeLocalStorage, setLocalStorage } from './use-stored-state'
 
 type RustFeatureDetail = {
@@ -45,9 +45,12 @@ const getRustFeature = async (feature: RustFeature): Promise<RustFeatureDetail> 
         })
 }
 
-const useRustFeature = (feature?: RustFeature) => {
+const useRustFeature = (feature?: RustFeature | CargoFeature) => {
     const callback = useCallback(async () => {
         if (!feature) return null
+        if ('content' in feature && feature.content) {
+            return { content: feature.content.trim(), received: 0 }
+        }
         return getRustFeature(feature)
     }, [feature])
     const { status, value, error } = useAsync(callback, true)

@@ -13,6 +13,7 @@ const useRustFeaturesCached = (version: string): RustFeatures | null => {
                     flags: features.flags ?? [],
                     langFeatures: features.langFeatures ?? [],
                     libFeatures: features.libFeatures ?? [],
+                    cargoFeatures: features.cargoFeatures ?? [],
                     received: features.received ?? 0,
                 }
             } catch {

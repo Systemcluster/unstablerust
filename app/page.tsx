@@ -21,7 +21,7 @@ import {
 } from '@remixicon/react'
 
 import useRustReleases, { RustRelease } from '@/hooks/use-rust-releases'
-import useRustFeatures, { RustFeature, RustFeatures } from '@/hooks/use-rust-features'
+import useRustFeatures, { RustFeature, RustFeatures, type CargoFeature } from '@/hooks/use-rust-features'
 import useStoredState from '@/hooks/use-stored-state'
 import useRustFeature from '@/hooks/use-rust-feature'
 import useRustFeaturesCached from '@/hooks/use-rust-features-cached'
@@ -208,7 +208,10 @@ const FeatureList = ({
     const [baseRelease, setBaseRelease] = useStoredState('rust-selected-base-release', '')
     const baseFeatures = useRustFeatures(baseRelease)
 
-    const [selectedFeature, setSelectedFeature] = useStoredState<RustFeature | undefined>('rust-selected-feature', undefined)
+    const [selectedFeature, setSelectedFeature] = useStoredState<RustFeature | CargoFeature | undefined>(
+        'rust-selected-feature',
+        undefined
+    )
     const featureDetails = useRustFeature(selectedFeature)
 
     const baseReleaseIndex = releases.findIndex((r) => r.value === baseRelease)
@@ -240,24 +243,34 @@ const FeatureList = ({
         const newFlags = newFeatures.value.flags
         const compareFlags = baseFeatures.value.flags
         const newLangFeatures = newFeatures.value.langFeatures
+        const newCargoFeatures = newFeatures.value.cargoFeatures
         const compareLangFeatures = baseFeatures.value.langFeatures
         const newLibFeatures = newFeatures.value.libFeatures
         const compareLibFeatures = baseFeatures.value.libFeatures
+        const compareCargoFeatures = baseFeatures.value.cargoFeatures
 
         const addedFlags = newFlags.filter((flag) => !compareFlags.some((c) => c.name === flag.name))
         const addedLangFeatures = newLangFeatures.filter((feature) => !compareLangFeatures.some((c) => c.name === feature.name))
         const addedLibFeatures = newLibFeatures.filter((feature) => !compareLibFeatures.some((c) => c.name === feature.name))
+        const addedCargoFeatures = newCargoFeatures.filter(
+            (feature) => !compareCargoFeatures.some((c) => c.name === feature.name)
+        )
         const removedFlags = compareFlags.filter((flag) => !newFlags.some((c) => c.name === flag.name))
         const removedLangFeatures = compareLangFeatures.filter((feature) => !newLangFeatures.some((c) => c.name === feature.name))
         const removedLibFeatures = compareLibFeatures.filter((feature) => !newLibFeatures.some((c) => c.name === feature.name))
+        const removedCargoFeatures = compareCargoFeatures.filter(
+            (feature) => !newCargoFeatures.some((c) => c.name === feature.name)
+        )
 
         return {
             addedFlags,
             addedLangFeatures,
             addedLibFeatures,
+            addedCargoFeatures,
             removedFlags,
             removedLangFeatures,
             removedLibFeatures,
+            removedCargoFeatures,
         }
     }, [baseFeatures.value, newFeatures.value])
 
@@ -289,12 +302,18 @@ const FeatureList = ({
             addedLibFeatures: newFeatures.value.libFeatures.filter(
                 (feature) => !compareValue?.libFeatures.some((f) => f.name === feature.name)
             ),
+            addedCargoFeatures: newFeatures.value.cargoFeatures.filter(
+                (feature) => !compareValue?.cargoFeatures.some((f) => f.name === feature.name)
+            ),
             removedFlags: compareValue?.flags.filter((flag) => !newFeatures.value?.flags.some((f) => f.name === flag.name)),
             removedLangFeatures: compareValue?.langFeatures.filter(
                 (feature) => !newFeatures.value?.langFeatures.some((f) => f.name === feature.name)
             ),
             removedLibFeatures: compareValue?.libFeatures.filter(
                 (feature) => !newFeatures.value?.libFeatures.some((f) => f.name === feature.name)
+            ),
+            removedCargoFeatures: compareValue?.cargoFeatures.filter(
+                (feature) => !newFeatures.value?.cargoFeatures.some((f) => f.name === feature.name)
             ),
         }
     }, [cachedBetaFeatures, cachedNightlyFeatures, newFeatures.value, newRelease])
@@ -313,6 +332,9 @@ const FeatureList = ({
             ),
             libFeatures: newFeatures.value.libFeatures.filter(
                 (feature) => !diffFeatures.addedLibFeatures.some((f) => f.name === feature.name)
+            ),
+            cargoFeatures: newFeatures.value.cargoFeatures.filter(
+                (feature) => !diffFeatures.addedCargoFeatures.some((f) => f.name === feature.name)
             ),
         } as RustFeatures
     }, [newFeatures.value, diffFeatures])
@@ -507,6 +529,14 @@ const FeatureList = ({
                             highlight={newUpdatedFeatures?.addedLibFeatures ?? []}
                         />
                         <FeatureGroup
+                            title="New Cargo Features"
+                            features={diffFeatures?.addedCargoFeatures ?? []}
+                            diff="added"
+                            selectFeature={setSelectedFeature}
+                            selected={selectedFeature}
+                            highlight={newUpdatedFeatures?.addedCargoFeatures ?? []}
+                        />
+                        <FeatureGroup
                             title="Removed Compiler Flags"
                             features={diffFeatures?.removedFlags ?? []}
                             diff="removed"
@@ -531,6 +561,14 @@ const FeatureList = ({
                             highlight={newUpdatedFeatures?.removedLibFeatures ?? []}
                         />
                         <FeatureGroup
+                            title="Removed Cargo Features"
+                            features={diffFeatures?.removedCargoFeatures ?? []}
+                            diff="removed"
+                            selectFeature={setSelectedFeature}
+                            selected={selectedFeature}
+                            highlight={newUpdatedFeatures?.removedCargoFeatures ?? []}
+                        />
+                        <FeatureGroup
                             title="All Compiler Flags"
                             features={newFeatures.value?.flags ?? []}
                             selectFeature={setSelectedFeature}
@@ -545,6 +583,12 @@ const FeatureList = ({
                         <FeatureGroup
                             title="All Library Features"
                             features={newFeatures.value?.libFeatures ?? []}
+                            selectFeature={setSelectedFeature}
+                            selected={selectedFeature}
+                        />
+                        <FeatureGroup
+                            title="All Cargo Features"
+                            features={newFeatures.value?.cargoFeatures ?? []}
                             selectFeature={setSelectedFeature}
                             selected={selectedFeature}
                         />
@@ -588,7 +632,7 @@ const FeatureList = ({
     )
 }
 
-const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: string }) => {
+const FeatureDetails = ({ feature, content }: { feature: RustFeature | CargoFeature; content: string }) => {
     const mainContentRef = useRef<HTMLElement>(null)
     useEffect(() => {
         if (!mainContentRef.current) {
@@ -598,12 +642,12 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: s
             hljs.highlightElement(element as HTMLElement)
         })
     }, [content])
-    const source = content.replaceAll(
-        /<a href="((?:\.\.\/|\/)*)?([\d./a-z-]+\.html)(#[a-z-]*)?">/g,
-        (match, p1, p2, p3) =>
-            `<a href="https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url.split('/', 2)[0]}/${
-                p1 || ''
-            }${p2}${p3 || ''}">`
+    const source = content.replaceAll(/<a href="((?:\.\.\/|\/)*)?([\d./a-z-]+\.html)(#[a-z-]*)?">/g, (match, p1, p2, p3) =>
+        'content' in feature
+            ? `<a href="https://doc.rust-lang.org/${feature?.version}/cargo/reference/${p1 || ''}${p2}${p3 || ''}">`
+            : `<a href="https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url.split('/', 2)[0]}/${
+                  p1 || ''
+              }${p2}${p3 || ''}">`
     )
 
     return (
@@ -760,7 +804,11 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: s
             >
                 <a
                     // eslint-disable-next-line max-len
-                    href={`https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url}`}
+                    href={
+                        'content' in feature
+                            ? `https://doc.rust-lang.org/${feature?.version}/cargo/reference/unstable.html${feature?.url}`
+                            : `https://doc.rust-lang.org/${feature?.version}/unstable-book/${feature?.url}`
+                    }
                     sx={{
                         color: 'link.0',
                         borderBottom: '1px solid',
@@ -771,7 +819,9 @@ const FeatureDetails = ({ feature, content }: { feature: RustFeature; content: s
                         },
                         display: 'flex',
                         alignItems: 'center',
-                        width: 'min-content',
+                        minWidth: 'min-content',
+                        width: 'max-content',
+                        maxWidth: '100%',
                         gap: 2,
                         mt: '-2px',
                     }}
@@ -807,11 +857,11 @@ const FeatureGroup = ({
     highlight,
 }: {
     title: string
-    features: RustFeature[]
+    features: RustFeature[] | CargoFeature[]
     diff?: 'added' | 'removed'
     selected?: RustFeature
     selectFeature: (feature: RustFeature) => void
-    highlight?: RustFeature[]
+    highlight?: RustFeature[] | CargoFeature[]
 }): JSX.Element => {
     return features.length === 0 ? (
         <Fragment />
