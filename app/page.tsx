@@ -253,9 +253,7 @@ const FeatureList = ({
         const addedFlags = newFlags.filter((flag) => !compareFlags.some((c) => c.url === flag.url))
         const addedLangFeatures = newLangFeatures.filter((feature) => !compareLangFeatures.some((c) => c.url === feature.url))
         const addedLibFeatures = newLibFeatures.filter((feature) => !compareLibFeatures.some((c) => c.url === feature.url))
-        const addedCargoFeatures = newCargoFeatures.filter(
-            (feature) => !compareCargoFeatures.some((c) => c.url === feature.url)
-        )
+        const addedCargoFeatures = newCargoFeatures.filter((feature) => !compareCargoFeatures.some((c) => c.url === feature.url))
         const removedFlags = compareFlags.filter((flag) => !newFlags.some((c) => c.url === flag.url))
         const removedLangFeatures = compareLangFeatures.filter((feature) => !newLangFeatures.some((c) => c.url === feature.url))
         const removedLibFeatures = compareLibFeatures.filter((feature) => !newLibFeatures.some((c) => c.url === feature.url))
@@ -627,7 +625,9 @@ const FeatureList = ({
                                 feature={selectedFeature}
                                 content={featureDetails.value.content}
                                 selectFeature={(feature, ty) => {
-                                    const found = newFeatures.value?.[ty]?.find((f) => f.name === feature)
+                                    const found = newFeatures.value?.[ty]?.find(
+                                        (f) => f.name === feature || f.name.replaceAll(' ', '-') === feature.replaceAll(' ', '-')
+                                    )
                                     if (found) {
                                         setSelectedFeature(found)
                                         return true
