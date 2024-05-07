@@ -32,28 +32,30 @@ const useAsync = <T, E extends Error>(callback: () => Promise<T>, immediate = tr
     const [error, setError] = useState<E | null>(null)
 
     const requestId = useRef(0)
-    const execute = useCallback(async () => {
+    const execute = useCallback(() => {
         setStatus('pending')
         setValue(null)
         setError(null)
         let newId = requestId.current + 1
         requestId.current = newId
-        try {
-            const response = await callback()
-            if (requestId.current !== newId) {
-                return
+        return (async () => {
+            try {
+                const response = await callback()
+                if (requestId.current !== newId) {
+                    return
+                }
+                setValue(response)
+                setStatus('success')
+                return response
+            } catch (error: any) {
+                if (requestId.current !== newId) {
+                    return
+                }
+                setError(error)
+                setStatus('error')
+                return error
             }
-            setValue(response)
-            setStatus('success')
-            return response
-        } catch (error: any) {
-            if (requestId.current !== newId) {
-                return
-            }
-            setError(error)
-            setStatus('error')
-            return error
-        }
+        })()
     }, [callback])
 
     const isExecuting = useRef(false)

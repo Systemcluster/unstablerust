@@ -44,7 +44,7 @@ const useStoredState = <T>(key: string, defaultValue: T): [T, Dispatch<SetStateA
         (newValue: Dispatch<SetStateAction<T>>) => {
             const changedValue = typeof newValue === 'function' ? newValue(value) : newValue
             setValue(changedValue)
-            setLocalStorage(key, JSON.stringify(changedValue))
+            setTimeout(() => setLocalStorage(key, JSON.stringify(changedValue)), 1)
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [key]

@@ -4,7 +4,7 @@ import { keyframes } from '@emotion/react'
 import { Theme } from '@theme-ui/core'
 import hljs from 'highlight.js'
 import Link from 'next/link'
-import { ComponentProps, Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { ComponentProps, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { darkTheme } from 'themes/dark'
 import { lightTheme } from 'themes/light'
@@ -190,6 +190,38 @@ const Button = ({ children, ...props }: ComponentProps<'button'>): JSX.Element =
     )
 }
 
+const ButtonLink = ({ children, ...props }: ComponentProps<'a'>): JSX.Element => {
+    return (
+        <a
+            sx={{
+                all: 'unset',
+                display: 'inline-flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                borderBottom: '1px solid',
+                borderColor: 'transparent',
+                transition: 'standard',
+                transitionProperty: 'color',
+            }}
+            {...props}
+        >
+            {children}
+        </a>
+    )
+}
+
+const featureToUrl = (feature?: RustFeature | CargoFeature): string => {
+    if (!feature) {
+        return '#'
+    }
+    return '#' + feature.version + '/' + feature.url.replace(/\.html$/, '').replace(/^#/, 'cargo/')
+}
+const urlToFeatureUrl = (feature: string): string => {
+    return feature.startsWith('cargo/') ? '#' + feature.slice(6) : feature + '.html'
+}
+
 const FeatureList = ({
     releases,
     ...props
@@ -208,10 +240,60 @@ const FeatureList = ({
     const [baseRelease, setBaseRelease] = useStoredState('rust-selected-base-release', '')
     const baseFeatures = useRustFeatures(baseRelease)
 
-    const [selectedFeature, setSelectedFeature] = useStoredState<RustFeature | CargoFeature | undefined>(
+    const [selectedFeature, setSelectedFeature_] = useStoredState<RustFeature | CargoFeature | undefined>(
         'rust-selected-feature',
         undefined
     )
+    const setSelectedFeature = useCallback(
+        (feature?: RustFeature | CargoFeature | undefined) => {
+            setSelectedFeature_(feature)
+            if (global.window?.history) {
+                global.window.history.replaceState({}, '', featureToUrl(feature))
+            }
+        },
+        [setSelectedFeature_]
+    )
+    const hashRelease = useRef<string | null>(global.window?.location.hash.slice(1))
+    if (hashRelease.current && releases.length > 0) {
+        ;(() => {
+            const [release, ...features] = hashRelease.current.split('/')
+            const feature = features?.join('/')
+            if (!release || !feature || !releases.some((r) => r.value === release)) {
+                hashRelease.current = null
+                return
+            }
+            const releaseIndex = releases.findIndex((r) => r.value === release)
+            const compareIndex = releases.findIndex((r) => r.value === baseRelease)
+            const newCompareIndex = releases.findIndex((r) => r.value === newRelease)
+            if (releaseIndex <= newCompareIndex) {
+                setNewRelease(releases.at(releaseIndex)?.value ?? release)
+            }
+            if (releaseIndex > compareIndex) {
+                setBaseRelease(releases.at(releaseIndex + 1)?.value ?? release)
+            }
+            setSelectedFeature_({
+                version: release,
+                url: urlToFeatureUrl(feature),
+                name: '',
+            })
+            hashRelease.current = null
+        })()
+    }
+    if (selectedFeature && selectedFeature.url && !selectedFeature.name && baseFeatures.value && newFeatures.value) {
+        let found =
+            newFeatures.value?.flags.find((f) => f.url === selectedFeature.url) ??
+            newFeatures.value?.langFeatures.find((f) => f.url === selectedFeature.url) ??
+            newFeatures.value?.libFeatures.find((f) => f.url === selectedFeature.url) ??
+            newFeatures.value?.cargoFeatures.find((f) => f.url === selectedFeature.url) ??
+            baseFeatures.value?.flags.find((f) => f.url === selectedFeature.url) ??
+            baseFeatures.value?.langFeatures.find((f) => f.url === selectedFeature.url) ??
+            baseFeatures.value?.libFeatures.find((f) => f.url === selectedFeature.url) ??
+            baseFeatures.value?.cargoFeatures.find((f) => f.url === selectedFeature.url)
+        if (found) {
+            setSelectedFeature_(found)
+        }
+    }
+
     const featureDetails = useRustFeature(selectedFeature)
 
     const baseReleaseIndex = releases.findIndex((r) => r.value === baseRelease)
@@ -980,7 +1062,7 @@ const FeatureGroup = ({
                             fondWeight: 400,
                         }}
                     >
-                        <Button
+                        <ButtonLink
                             sx={{
                                 ':hover': {
                                     borderColor: 'text.0',
@@ -995,12 +1077,15 @@ const FeatureGroup = ({
                             }}
                             data-selected={selected?.url === feature.url}
                             onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
                                 e.currentTarget?.blur()
                                 selectFeature(feature)
                             }}
+                            href={featureToUrl(feature)}
                         >
                             <span>{feature.name}</span>
-                        </Button>
+                        </ButtonLink>
                         {highlight?.some((f) => f.url == feature.url) && (
                             <Tooltip content="New addition since last visit">
                                 <RiMapPin3Line size={14} sx={{ ml: 2, opacity: 0.5, paddingBottom: '1px' }} />
