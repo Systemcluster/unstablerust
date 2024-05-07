@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import useAsync from './use-async'
-import { type RustFeature, type CargoFeature } from './use-rust-features'
+import { type CargoFeature, type RustFeature } from './use-rust-features'
 import { getLocalStorage, removeLocalStorage, setLocalStorage } from './use-stored-state'
 
 type RustFeatureDetail = {
@@ -11,7 +11,7 @@ type RustFeatureDetail = {
 
 const getRustFeature = async (feature: RustFeature): Promise<RustFeatureDetail> => {
     if (!feature) throw new Error('No version provided')
-    const cached = getLocalStorage(`rust-feature-${feature.version}-${feature.name}`)
+    const cached = getLocalStorage(`rust-feature-${feature.version}-${feature.url}`)
     if (cached) {
         let acceptAge = feature.version === 'nightly' || feature.version === 'beta' ? 1000 * 60 * 120 : 1000 * 60 * 60 * 24 * 7
         try {
@@ -20,7 +20,7 @@ const getRustFeature = async (feature: RustFeature): Promise<RustFeatureDetail> 
                 return feature
             }
         } catch {
-            removeLocalStorage(`rust-feature-${feature.version}-${feature.name}`)
+            removeLocalStorage(`rust-feature-${feature.version}-${feature.url}`)
         }
     }
     return fetch(`/api/feature/${feature.version}/${feature.url}`)
@@ -40,7 +40,7 @@ const getRustFeature = async (feature: RustFeature): Promise<RustFeatureDetail> 
                 content: content.innerHTML.trim(),
                 received: Date.now(),
             } as RustFeatureDetail
-            setLocalStorage(`rust-feature-${feature.version}-${feature.name}`, JSON.stringify(collected))
+            setLocalStorage(`rust-feature-${feature.version}-${feature.url}`, JSON.stringify(collected))
             return collected
         })
 }

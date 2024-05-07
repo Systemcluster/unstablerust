@@ -1,32 +1,32 @@
 'use client'
 
-import { ComponentProps, Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import { keyframes } from '@emotion/react'
 import { Theme } from '@theme-ui/core'
 import hljs from 'highlight.js'
+import Link from 'next/link'
+import { ComponentProps, Fragment, useEffect, useMemo, useRef, useState } from 'react'
 
 import { darkTheme } from 'themes/dark'
 import { lightTheme } from 'themes/light'
 
 import {
     RiArrowLeftCircleLine,
-    RiLoader4Line,
     RiErrorWarningLine,
     RiExternalLinkFill,
+    RiGithubLine,
+    RiLoader4Line,
+    RiMapPin3Line,
     RiMoonFill,
     RiSunFill,
-    RiMapPin3Line,
-    RiGithubLine,
 } from '@remixicon/react'
 
-import useRustReleases, { RustRelease } from '@/hooks/use-rust-releases'
-import useRustFeatures, { RustFeature, RustFeatures, type CargoFeature } from '@/hooks/use-rust-features'
-import useStoredState from '@/hooks/use-stored-state'
-import useRustFeature from '@/hooks/use-rust-feature'
-import useRustFeaturesCached from '@/hooks/use-rust-features-cached'
-import Tooltip from '@/components/tooltip'
 import { ThemeWrapper } from '@/components/theme'
+import Tooltip from '@/components/tooltip'
+import useRustFeature from '@/hooks/use-rust-feature'
+import useRustFeatures, { RustFeature, RustFeatures, type CargoFeature } from '@/hooks/use-rust-features'
+import useRustFeaturesCached from '@/hooks/use-rust-features-cached'
+import useRustReleases, { RustRelease } from '@/hooks/use-rust-releases'
+import useStoredState from '@/hooks/use-stored-state'
 
 const Nav = ({ children, ...props }: ComponentProps<'nav'>): JSX.Element => {
     return (
@@ -250,17 +250,17 @@ const FeatureList = ({
         const compareLibFeatures = baseFeatures.value.libFeatures
         const compareCargoFeatures = baseFeatures.value.cargoFeatures
 
-        const addedFlags = newFlags.filter((flag) => !compareFlags.some((c) => c.name === flag.name))
-        const addedLangFeatures = newLangFeatures.filter((feature) => !compareLangFeatures.some((c) => c.name === feature.name))
-        const addedLibFeatures = newLibFeatures.filter((feature) => !compareLibFeatures.some((c) => c.name === feature.name))
+        const addedFlags = newFlags.filter((flag) => !compareFlags.some((c) => c.url === flag.url))
+        const addedLangFeatures = newLangFeatures.filter((feature) => !compareLangFeatures.some((c) => c.url === feature.url))
+        const addedLibFeatures = newLibFeatures.filter((feature) => !compareLibFeatures.some((c) => c.url === feature.url))
         const addedCargoFeatures = newCargoFeatures.filter(
-            (feature) => !compareCargoFeatures.some((c) => c.name === feature.name)
+            (feature) => !compareCargoFeatures.some((c) => c.url === feature.url)
         )
-        const removedFlags = compareFlags.filter((flag) => !newFlags.some((c) => c.name === flag.name))
-        const removedLangFeatures = compareLangFeatures.filter((feature) => !newLangFeatures.some((c) => c.name === feature.name))
-        const removedLibFeatures = compareLibFeatures.filter((feature) => !newLibFeatures.some((c) => c.name === feature.name))
+        const removedFlags = compareFlags.filter((flag) => !newFlags.some((c) => c.url === flag.url))
+        const removedLangFeatures = compareLangFeatures.filter((feature) => !newLangFeatures.some((c) => c.url === feature.url))
+        const removedLibFeatures = compareLibFeatures.filter((feature) => !newLibFeatures.some((c) => c.url === feature.url))
         const removedCargoFeatures = compareCargoFeatures.filter(
-            (feature) => !newCargoFeatures.some((c) => c.name === feature.name)
+            (feature) => !newCargoFeatures.some((c) => c.url === feature.url)
         )
 
         return {
@@ -296,25 +296,25 @@ const FeatureList = ({
             return null
         }
         return {
-            addedFlags: newFeatures.value.flags.filter((flag) => !compareValue?.flags.some((f) => f.name === flag.name)),
+            addedFlags: newFeatures.value.flags.filter((flag) => !compareValue?.flags.some((f) => f.url === flag.url)),
             addedLangFeatures: newFeatures.value.langFeatures.filter(
-                (feature) => !compareValue?.langFeatures.some((f) => f.name === feature.name)
+                (feature) => !compareValue?.langFeatures.some((f) => f.url === feature.url)
             ),
             addedLibFeatures: newFeatures.value.libFeatures.filter(
-                (feature) => !compareValue?.libFeatures.some((f) => f.name === feature.name)
+                (feature) => !compareValue?.libFeatures.some((f) => f.url === feature.url)
             ),
             addedCargoFeatures: newFeatures.value.cargoFeatures.filter(
-                (feature) => !compareValue?.cargoFeatures.some((f) => f.name === feature.name)
+                (feature) => !compareValue?.cargoFeatures.some((f) => f.url === feature.url)
             ),
-            removedFlags: compareValue?.flags.filter((flag) => !newFeatures.value?.flags.some((f) => f.name === flag.name)),
+            removedFlags: compareValue?.flags.filter((flag) => !newFeatures.value?.flags.some((f) => f.url === flag.url)),
             removedLangFeatures: compareValue?.langFeatures.filter(
-                (feature) => !newFeatures.value?.langFeatures.some((f) => f.name === feature.name)
+                (feature) => !newFeatures.value?.langFeatures.some((f) => f.url === feature.url)
             ),
             removedLibFeatures: compareValue?.libFeatures.filter(
-                (feature) => !newFeatures.value?.libFeatures.some((f) => f.name === feature.name)
+                (feature) => !newFeatures.value?.libFeatures.some((f) => f.url === feature.url)
             ),
             removedCargoFeatures: compareValue?.cargoFeatures.filter(
-                (feature) => !newFeatures.value?.cargoFeatures.some((f) => f.name === feature.name)
+                (feature) => !newFeatures.value?.cargoFeatures.some((f) => f.url === feature.url)
             ),
         }
     }, [cachedBetaFeatures, cachedNightlyFeatures, newFeatures.value, newRelease])
@@ -327,15 +327,15 @@ const FeatureList = ({
             return newFeatures.value
         }
         return {
-            flags: newFeatures.value.flags.filter((flag) => !diffFeatures.addedFlags.some((f) => f.name === flag.name)),
+            flags: newFeatures.value.flags.filter((flag) => !diffFeatures.addedFlags.some((f) => f.url === flag.url)),
             langFeatures: newFeatures.value.langFeatures.filter(
-                (feature) => !diffFeatures.addedLangFeatures.some((f) => f.name === feature.name)
+                (feature) => !diffFeatures.addedLangFeatures.some((f) => f.url === feature.url)
             ),
             libFeatures: newFeatures.value.libFeatures.filter(
-                (feature) => !diffFeatures.addedLibFeatures.some((f) => f.name === feature.name)
+                (feature) => !diffFeatures.addedLibFeatures.some((f) => f.url === feature.url)
             ),
             cargoFeatures: newFeatures.value.cargoFeatures.filter(
-                (feature) => !diffFeatures.addedCargoFeatures.some((f) => f.name === feature.name)
+                (feature) => !diffFeatures.addedCargoFeatures.some((f) => f.url === feature.url)
             ),
         } as RustFeatures
     }, [newFeatures.value, diffFeatures])
@@ -948,7 +948,7 @@ const FeatureGroup = ({
     features: RustFeature[] | CargoFeature[]
     diff?: 'added' | 'removed'
     selected?: RustFeature
-    selectFeature: (feature: RustFeature) => void
+    selectFeature: (feature: RustFeature | CargoFeature) => void
     highlight?: RustFeature[] | CargoFeature[]
 }): JSX.Element => {
     return features.length === 0 ? (
@@ -974,10 +974,10 @@ const FeatureGroup = ({
                 {features.map((feature) => (
                     <li
                         key={feature.name}
-                        data-feature={feature.name}
                         sx={{
                             display: 'inline-flex',
                             alignItems: 'center',
+                            fondWeight: 400,
                         }}
                     >
                         <Button
@@ -989,10 +989,11 @@ const FeatureGroup = ({
                                     outline: 'none',
                                     borderColor: 'text.0',
                                 },
+                                '&[data-selected="true"]': {
+                                    fontWeight: 600,
+                                },
                             }}
-                            style={{
-                                fontWeight: feature.name === selected?.name ? 600 : 400,
-                            }}
+                            data-selected={selected?.url === feature.url}
                             onClick={(e) => {
                                 e.currentTarget?.blur()
                                 selectFeature(feature)
@@ -1000,7 +1001,7 @@ const FeatureGroup = ({
                         >
                             <span>{feature.name}</span>
                         </Button>
-                        {highlight?.some((f) => f.name === feature.name) && (
+                        {highlight?.some((f) => f.url == feature.url) && (
                             <Tooltip content="New addition since last visit">
                                 <RiMapPin3Line size={14} sx={{ ml: 2, opacity: 0.5, paddingBottom: '1px' }} />
                             </Tooltip>
