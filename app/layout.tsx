@@ -1,11 +1,11 @@
 /** @jsxImportSource react */
 
-import '../styles/reset.css'
-import '../styles/global.css'
 import '../styles/fonts/monoid.css'
+import '../styles/global.css'
+import '../styles/reset.css'
 
-import { Fragment, ReactNode } from 'react'
 import type { Metadata, Viewport } from 'next'
+import { Fragment, ReactNode } from 'react'
 
 import { AnalyticsWrapper } from '@/components/analytics'
 
@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     title: {
         default: 'Unstable Rust Feature Explorer',
         template: '%s | Unstable Rust Feature Explorer',
+    },
+    alternates: {
+        canonical: 'https://unstablerust.dev/',
     },
     description: 'Explore and compare the unstable features between versions of the Rust programming language.',
     keywords: 'rust, programming, nightly rust, rust features, rust nightly, feature comparison, versions, unstable features',
