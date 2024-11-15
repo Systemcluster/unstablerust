@@ -93,7 +93,7 @@ const getRustFeatures = async (version: string): Promise<RustFeatures> => {
             }
             const featuresParser = new DOMParser()
             const featuresDoc = featuresParser.parseFromString(json.raw, 'text/html')
-            const featuresFeatures = [...featuresDoc.querySelectorAll('#sidebar ol.section')]
+            const featuresFeatures = [...featuresDoc.querySelectorAll('ol.section')]
             const cargoParser = new DOMParser()
             const cargoDoc = cargoParser.parseFromString(json.cargo, 'text/html')
             const cargoFeaturesRoot = cargoDoc.querySelector('#content main')

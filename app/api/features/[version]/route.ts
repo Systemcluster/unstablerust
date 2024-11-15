@@ -1,17 +1,28 @@
-import { NextResponse, NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const runtime = 'edge'
 
 export async function GET(request: NextRequest, { params }: { params: any }): Promise<NextResponse> {
     try {
         const maxAge = params.version === 'nightly' || params.version === 'beta' ? 60 * 15 : 60 * 60 * 24 * 7
-        const bookRequest = await fetch(`https://doc.rust-lang.org/${params.version}/unstable-book/the-unstable-book.html`, {
-            cache: 'no-store',
-        })
         const cargoRequest = await fetch(`https://doc.rust-lang.org/${params.version}/cargo/reference/unstable.html`, {
             cache: 'no-store',
         })
-        const book = await bookRequest.text()
+        let book = ''
+        try {
+            const bookRequest = await fetch(`https://doc.rust-lang.org/${params.version}/unstable-book/toc.html`, {
+                cache: 'no-store',
+            })
+            if (bookRequest.status === 404) {
+                throw new Error('toc.html not found')
+            }
+            book = await bookRequest.text()
+        } catch {
+            const bookRequest = await fetch(`https://doc.rust-lang.org/${params.version}/unstable-book/the-unstable-book.html`, {
+                cache: 'no-store',
+            })
+            book = await bookRequest.text()
+        }
         const cargo = await cargoRequest.text()
         return NextResponse.json(
             {
