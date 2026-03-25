@@ -34,7 +34,8 @@ const getRustFeature = async (feature: RustFeature): Promise<RustFeatureDetail> 
             }
             const parser = new DOMParser()
             const doc = parser.parseFromString(json.raw, 'text/html')
-            const content = doc.querySelector('#content main')
+            let content = doc.querySelector('#content main')
+            if (!content) { content = doc.querySelector("#mdbook-content main") }
             if (!content) throw new Error('Failed to get feature details')
             const collected = {
                 content: content.innerHTML.trim(),
