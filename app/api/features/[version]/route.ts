@@ -6,7 +6,9 @@ export async function GET(
 	request: NextRequest,
 	{ params }: { params: any },
 ): Promise<NextResponse> {
-	try {
+    const p = params;
+    try {
+        const params = await p;
 		const maxAge =
 			params.version === "nightly" || params.version === "beta"
 				? 60 * 15

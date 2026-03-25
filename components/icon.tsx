@@ -1,4 +1,5 @@
 import { ComponentProps } from 'react'
+import type { JSX } from 'react/jsx-runtime'
 
 export interface IconProps extends ComponentProps<'span'> {
     src: string

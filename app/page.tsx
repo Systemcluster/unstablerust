@@ -39,6 +39,7 @@ import useRustFeatures, {
 import useRustFeaturesCached from "@/hooks/use-rust-features-cached";
 import useRustReleases, { type RustRelease } from "@/hooks/use-rust-releases";
 import useStoredState from "@/hooks/use-stored-state";
+import type { JSX } from "react/jsx-runtime";
 
 const Nav = ({ children, ...props }: ComponentProps<"nav">): JSX.Element => {
 	return (
