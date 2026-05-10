@@ -17,6 +17,7 @@ export type CargoFeature = {
 }
 
 export type RustFeatures = {
+    envs: RustFeature[]
     flags: RustFeature[]
     langFeatures: RustFeature[]
     libFeatures: RustFeature[]
@@ -69,8 +70,9 @@ const getRustFeatures = async (version: string): Promise<RustFeatures> => {
         let acceptAge = version === 'nightly' || version === 'beta' ? 1000 * 60 * 15 : 1000 * 60 * 60 * 24 * 7
         try {
             const features = JSON.parse(cached)
-            if (Date.now() - features.received < acceptAge && features.cargoFeatures) {
+            if (Date.now() - features.received < acceptAge && features.cargoFeatures && features.envs) {
                 return {
+                    envs: features.envs ?? [],
                     flags: features.flags ?? [],
                     langFeatures: features.langFeatures ?? [],
                     libFeatures: features.libFeatures ?? [],
@@ -93,14 +95,22 @@ const getRustFeatures = async (version: string): Promise<RustFeatures> => {
             }
             const featuresParser = new DOMParser()
             const featuresDoc = featuresParser.parseFromString(json.raw, 'text/html')
-            const featuresFeatures = [...featuresDoc.querySelectorAll('ol.section')]
             const cargoParser = new DOMParser()
             const cargoDoc = cargoParser.parseFromString(json.cargo, 'text/html')
             const cargoFeaturesRoot = cargoDoc.querySelector('#content main')
-            const collected = {
-                flags: mapFeatures([...featuresFeatures[0].querySelectorAll('li')], version),
-                langFeatures: mapFeatures([...featuresFeatures[1].querySelectorAll('li')], version),
-                libFeatures: mapFeatures([...featuresFeatures[2].querySelectorAll('li')], version),
+            const newBook = !!document.querySelector(".chapter-link-wrapper")
+            const collected = newBook ? {
+                envs: mapFeatures([...featuresDoc.querySelector('a[href="compiler-environment-variables.html"]')?.parentElement?.parentElement?.querySelectorAll('li') ?? []], version),
+                flags: mapFeatures([...featuresDoc.querySelector('a[href="compiler-flags.html"]')?.parentElement?.parentElement?.querySelectorAll('li') ?? []], version),
+                langFeatures: mapFeatures([...featuresDoc.querySelector('a[href="language-features.html"]')?.parentElement?.parentElement?.querySelectorAll('li') ?? []], version),
+                libFeatures: mapFeatures([...featuresDoc.querySelector('a[href="library-features.html"]')?.parentElement?.parentElement?.querySelectorAll('li') ?? []], version),
+                cargoFeatures: cargoFeaturesRoot ? extractCargoFeatures(cargoFeaturesRoot, version) : [],
+                received: Date.now(),
+            } as RustFeatures : {
+                envs: mapFeatures([...featuresDoc.querySelector('a[href="compiler-environment-variables.html"]')?.parentElement?.nextElementSibling?.querySelectorAll('li') ?? []], version),
+                flags: mapFeatures([...featuresDoc.querySelector('a[href="compiler-flags.html"]')?.parentElement?.nextElementSibling?.querySelectorAll('li') ?? []], version),
+                langFeatures: mapFeatures([...featuresDoc.querySelector('a[href="language-features.html"]')?.parentElement?.nextElementSibling?.querySelectorAll('li') ?? []], version),
+                libFeatures: mapFeatures([...featuresDoc.querySelector('a[href="library-features.html"]')?.parentElement?.nextElementSibling?.querySelectorAll('li') ?? []], version),
                 cargoFeatures: cargoFeaturesRoot ? extractCargoFeatures(cargoFeaturesRoot, version) : [],
                 received: Date.now(),
             } as RustFeatures

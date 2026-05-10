@@ -30,26 +30,26 @@
         "@vercel/analytics": "^2.0.1",
         "highlight.js": "^11.11.1",
         "next": "16.2.1",
-        "react": "^19.2.4",
-        "react-dom": "^19.2.4",
-        "react-is": "^19.2.4",
-        "typescript": "^6.0.2",
-        "user-agent-data-types": "^0.4.2"
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6",
+        "react-is": "^19.2.6",
+        "typescript": "^6.0.3",
+        "user-agent-data-types": "^0.4.3"
     },
     "devDependencies": {
-        "@next/eslint-plugin-next": "^16.2.1",
-        "@types/node": "^25.5.0",
+        "@next/eslint-plugin-next": "^16.2.6",
+        "@types/node": "^25.6.2",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
-        "browserslist": "^4.28.1",
+        "browserslist": "^4.28.2",
         "concurrently": "^9.2.1",
-        "eslint": "^10.1.0",
-        "eslint-config-next": "^16.2.1",
+        "eslint": "^10.3.0",
+        "eslint-config-next": "^16.2.6",
         "eslint-config-prettier": "^10.1.8",
-        "eslint-plugin-compat": "^7.0.1",
+        "eslint-plugin-compat": "^7.0.2",
         "eslint-plugin-prettier": "5.5.5",
         "eslint-plugin-unicorn": "^63.0.0",
-        "prettier": "^3.8.1",
+        "prettier": "^3.8.3",
         "rimraf": "^6.1.3"
     }
 }

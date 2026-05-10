@@ -446,7 +446,9 @@ const FeatureList = ({
 		const compareLangFeatures = baseFeatures.value.langFeatures;
 		const newLibFeatures = newFeatures.value.libFeatures;
 		const compareLibFeatures = baseFeatures.value.libFeatures;
-		const compareCargoFeatures = baseFeatures.value.cargoFeatures;
+        const compareCargoFeatures = baseFeatures.value.cargoFeatures;
+        const newEnvs = newFeatures.value.envs ?? [];
+        const compareEnvs = baseFeatures.value.envs ?? [];
 
 		const addedFlags = newFlags.filter(
 			(flag) => !compareFlags.some((c) => c.url === flag.url),
@@ -471,18 +473,26 @@ const FeatureList = ({
 		);
 		const removedCargoFeatures = compareCargoFeatures.filter(
 			(feature) => !newCargoFeatures.some((c) => c.url === feature.url),
-		);
+        );
+        const addedEnvs = newEnvs.filter(
+            (env) => !compareEnvs.some((c) => c.url === env.url),
+        );
+        const removedEnvs = compareEnvs.filter(
+            (env) => !newEnvs.some((c) => c.url === env.url),
+        );
 
 		return {
 			addedFlags,
 			addedLangFeatures,
 			addedLibFeatures,
-			addedCargoFeatures,
+            addedCargoFeatures,
+            addedEnvs,
 			removedFlags,
 			removedLangFeatures,
 			removedLibFeatures,
-			removedCargoFeatures,
-		};
+            removedCargoFeatures,
+            removedEnvs,
+		} as const;
 	}, [baseFeatures.value, newFeatures.value]);
 
 	const newUpdatedFeatures = useMemo(() => {
@@ -520,7 +530,10 @@ const FeatureList = ({
 			addedCargoFeatures: newFeatures.value.cargoFeatures.filter(
 				(feature) =>
 					!compareValue?.cargoFeatures.some((f) => f.url === feature.url),
-			),
+            ),
+            addedEnvs: newFeatures.value.envs?.filter(
+                (env) => !compareValue?.envs?.some((e) => e.url === env.url),
+            ) ?? [],
 			removedFlags: compareValue?.flags.filter(
 				(flag) => !newFeatures.value?.flags.some((f) => f.url === flag.url),
 			),
@@ -535,8 +548,11 @@ const FeatureList = ({
 			removedCargoFeatures: compareValue?.cargoFeatures.filter(
 				(feature) =>
 					!newFeatures.value?.cargoFeatures.some((f) => f.url === feature.url),
-			),
-		};
+            ),
+            removedEnvs: compareValue?.envs?.filter(
+                (env) => !newFeatures.value?.envs?.some((e) => e.url === env.url),
+            ) ?? [],
+		} as const;
 	}, [
 		cachedBetaFeatures,
 		cachedNightlyFeatures,
@@ -562,7 +578,10 @@ const FeatureList = ({
 			libFeatures: newFeatures.value.libFeatures.filter(
 				(feature) =>
 					!diffFeatures.addedLibFeatures.some((f) => f.url === feature.url),
-			),
+            ),
+            envs: newFeatures.value.envs?.filter(
+                (env) => !diffFeatures.addedEnvs.some((e) => e.url === env.url),
+            ) ?? [],
 			cargoFeatures: newFeatures.value.cargoFeatures.filter(
 				(feature) =>
 					!diffFeatures.addedCargoFeatures.some((f) => f.url === feature.url),
@@ -774,7 +793,15 @@ const FeatureList = ({
 							selectFeature={setSelectedFeature}
 							selected={selectedFeature}
 							highlight={newUpdatedFeatures?.addedLibFeatures ?? []}
-						/>
+                        />
+                        <FeatureGroup
+                            title="New Environment Variables"
+                            features={diffFeatures?.addedEnvs ?? []}
+                            diff="added"
+                            selectFeature={setSelectedFeature}
+                            selected={selectedFeature}
+                            highlight={newUpdatedFeatures?.addedEnvs ?? []}
+                        />
 						<FeatureGroup
 							title="New Cargo Features"
 							features={diffFeatures?.addedCargoFeatures ?? []}
@@ -806,7 +833,15 @@ const FeatureList = ({
 							selectFeature={setSelectedFeature}
 							selected={selectedFeature}
 							highlight={newUpdatedFeatures?.removedLibFeatures ?? []}
-						/>
+                        />
+                        <FeatureGroup
+                            title="Removed Environment Variables"
+                            features={diffFeatures?.removedEnvs ?? []}
+                            diff="removed"
+                            selectFeature={setSelectedFeature}
+                            selected={selectedFeature}
+                            highlight={newUpdatedFeatures?.removedEnvs ?? []}
+                        />
 						<FeatureGroup
 							title="Removed Cargo Features"
 							features={diffFeatures?.removedCargoFeatures ?? []}
@@ -832,6 +867,12 @@ const FeatureList = ({
 							features={newFeatures.value?.libFeatures ?? []}
 							selectFeature={setSelectedFeature}
 							selected={selectedFeature}
+						/>
+						<FeatureGroup
+                            title="All Environment Variables"
+                            features={newFeatures.value?.envs ?? []}
+                            selectFeature={setSelectedFeature}
+                            selected={selectedFeature}
 						/>
 						<FeatureGroup
 							title="All Cargo Features"

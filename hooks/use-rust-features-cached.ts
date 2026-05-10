@@ -10,6 +10,7 @@ const useRustFeaturesCached = (version: string): RustFeatures | null => {
             try {
                 const features = JSON.parse(cached)
                 return {
+                    envs: features.envs ?? [],
                     flags: features.flags ?? [],
                     langFeatures: features.langFeatures ?? [],
                     libFeatures: features.libFeatures ?? [],
